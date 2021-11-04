@@ -1,4 +1,4 @@
-Located in data/ directory:
+Located in ```data/``` directory:
 
 * ```citeseer```: Citeseer citation graph of N = 3,312 nodes and E = 4,723 edges in which each node represents a paper and each directed edge represents a citation [Sen et al., 2008].
 
