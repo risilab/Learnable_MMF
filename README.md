@@ -1,6 +1,5 @@
 ## Project
-Learning Multiresolution Matrix Factorization and its Wavelet Networks on Graphs
-Paper: https://arxiv.org/pdf/2111.01940.pdf
+Learning Multiresolution Matrix Factorization and its Wavelet Networks on Graphs, https://arxiv.org/pdf/2111.01940.pdf.
 
 ## Authors
 Truong Son Hy and Risi Kondor
