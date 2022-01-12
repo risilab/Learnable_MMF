@@ -176,9 +176,39 @@ class Sparse_MMF(nn.Module):
 # | Sparse MMF training |
 # +---------------------+
 
-def sparse_mmf_train(A_dense, L, K, drop, dim, wavelet_indices, rest_indices, epochs = 10000, learning_rate = 1e-4, early_stop = True):
+# opt
+# 'original': The original SGD with Cayley transform, without any additional library
+# 'additional-sgd': SGD + momentum with Cayley transform, adopted from https://github.com/JunLi-Galios/Optimization-on-Stiefel-Manifold-via-Cayley-Transform
+# 'additional-adam': Adam optimizer with Cayley transform, adopted from https://github.com/JunLi-Galios/Optimization-on-Stiefel-Manifold-via-Cayley-Transform
+
+def sparse_mmf_train(A_dense, L, K, drop, dim, wavelet_indices, rest_indices, epochs = 10000, learning_rate = 1e-4, early_stop = True, opt = 'original', momentum = 0.9):
     model = Sparse_MMF(A_dense, L, K, drop, dim, wavelet_indices, rest_indices)
-    optimizer = Adagrad(model.parameters(), lr = learning_rate)
+    
+    if opt == 'original':
+        # Original SGD with Cayley transform
+        optimizer = Adagrad(model.parameters(), lr = learning_rate)
+    else:
+        # Use additional library
+        import stiefel_optimizer
+
+        # Create the list of trainable parameters
+        param_g = []
+        for l in range(L):
+            param_g.append(model.all_O[l])
+
+        # Create the dictionary of optimizer's hyperparameters
+        dict_g = {
+                'params': param_g,
+                'lr': learning_rate,
+                'momentum': momentum,
+                'stiefel': True
+        }
+
+        # Create the optimizer
+        if opt == 'additional-sgd':
+            optimizer = stiefel_optimizer.SGDG([dict_g])
+        else:
+            optimizer = stiefel_optimizer.AdamG([dict_g])
 
     # Training
     best = 1e9
@@ -205,13 +235,18 @@ def sparse_mmf_train(A_dense, L, K, drop, dim, wavelet_indices, rest_indices, ep
 
         # Update parameter
         if epoch + 1 < epochs:
-            for l in range(L):
-                X = torch.Tensor(model.all_O[l].data)
-                G = torch.Tensor(model.all_O[l].grad.data)
-                Z = torch.matmul(G, X.transpose(0, 1)) - torch.matmul(X, G.transpose(0, 1))
-                tau = learning_rate
-                Y = torch.matmul(torch.matmul(torch.inverse(torch.eye(K) + tau / 2 * Z), torch.eye(K) - tau / 2 * Z), X)
-                model.all_O[l].data = Y.data
+            if opt == 'original':
+                # Without any additional library
+                for l in range(L):
+                    X = torch.Tensor(model.all_O[l].data)
+                    G = torch.Tensor(model.all_O[l].grad.data)
+                    Z = torch.matmul(G, X.transpose(0, 1)) - torch.matmul(X, G.transpose(0, 1))
+                    tau = learning_rate
+                    Y = torch.matmul(torch.matmul(torch.inverse(torch.eye(K) + tau / 2 * Z), torch.eye(K) - tau / 2 * Z), X)
+                    model.all_O[l].data = Y.data
+            else:
+                # Use the optimizer from the additional library
+                optimizer.step()
 
     # Return the result
     A_rec, right, D, mother_coefficients, father_coefficients, mother_wavelets, father_wavelets = model()

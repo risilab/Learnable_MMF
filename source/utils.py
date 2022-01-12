@@ -1,3 +1,5 @@
+# This source code is taken from https://github.com/JunLi-Galios/Optimization-on-Stiefel-Manifold-via-Cayley-Transform/
+
 import math
 import torch
 import torch.nn as nn
