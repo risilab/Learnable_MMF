@@ -8,7 +8,7 @@ A, cayley_node_x, cayley_node_y, edges = cayley_def(cayley_order = 2, cayley_dep
 
 # Learnable MMF with smooth wavelets
 print('--- Learnable MMF with smooth wavelets')
-A_rec, U, D, mother_coefficients, father_coefficients, mother_wavelets, father_wavelets = learnable_mmf_smooth_wavelets_train(A, L = 42, K = 4, drop = 1, dim = 4, epochs = 20000, learning_rate = 1e-3, Lambda = 1, alpha = 0.5, early_stop = True)
+A_rec, U, D, mother_coefficients, father_coefficients, mother_wavelets, father_wavelets = learnable_mmf_smooth_wavelets_train(A, L = 42, K = 4, drop = 1, dim = 4, epochs = 20000, learning_rate = 1e-3, Lambda = 1, alpha = 0.5, early_stop = True, opt = 'additional-adam', momentum = 0.9)
 
 # Visualize wavelets
 for l in range(42):
