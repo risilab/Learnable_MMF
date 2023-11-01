@@ -19,6 +19,8 @@ Recommend using Conda environment for easy installation.
 
 Please check the pdf documentation in ```doc/``` for implementation details and usage.
 
+![wavelets](wavelets.png)
+
 ## Cite our paper
 ```bibtex
 
